@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 2
   tags:
   - GruzMother
+  - Bullet
+  - Weapon
+  - Enemy
+  - wall
   layers:
   - Default
   - TransparentFX
