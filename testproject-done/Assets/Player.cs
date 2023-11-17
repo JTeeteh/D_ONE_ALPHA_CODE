@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro; // Change this line
 
 public class Player : Photon.MonoBehaviour
 {
@@ -10,20 +10,26 @@ public class Player : Photon.MonoBehaviour
     public Animator anim;
     public GameObject PlayerCamera;
     public SpriteRenderer sr;
-    public Text PlayerNameText;
+    public TextMeshProUGUI PlayerNameText; // Change this line
 
     public bool IsGrounded = false;
     public float MoveSpeed;
     public float JumpForce;
-
 
     private void Awake()
     {
         if (photonView.isMine)
         {
             PlayerCamera.SetActive(true);
-        }
+            //photonView.RPC("UpdatePlayerNameText", PhotonTargets.AllBuffered, "YourPlayerNameHere");
+            PlayerNameText.text = PhotonNetwork.playerName;
 
+        }
+        else
+        {
+            PlayerNameText.text = photonView.owner.name;
+            PlayerNameText.color = Color.cyan;
+        }
     }
 
     private void Update()
@@ -41,12 +47,38 @@ public class Player : Photon.MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.A))
         {
-            sr.flipX = true;
+            photonView.RPC("FlipTrue", PhotonTargets.AllBuffered);
         }
         if (Input.GetKeyDown(KeyCode.D))
         {
-            sr.flipX = false;
+            photonView.RPC("FlipFalse", PhotonTargets.AllBuffered);
         }
 
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
+        {
+            anim.SetBool("isJumping", true);
+        }
+        else
+        {
+            anim.SetBool("isJumping", false);
+        }
+    }
+
+    [PunRPC]
+    private void FlipTrue()
+    {
+        sr.flipX = true;
+    }
+
+    [PunRPC]
+    private void FlipFalse()
+    {
+        sr.flipX = false;
+    }
+
+    [PunRPC]
+    private void UpdatePlayerNameText(string playerName)
+    {
+        PlayerNameText.text = playerName;
     }
 }
